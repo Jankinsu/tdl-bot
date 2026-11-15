@@ -71,7 +71,7 @@ https://t.me/telegram/193
 
 | 配置名 | 默认值 | 用途 |
 | --- | --- | --- |
-| `TDL_BOT_MEDIA_DIR` | `/home/<用户名>/Downloads/telegram` | 下载文件保存路径 |
+| `TDL_BOT_MEDIA_DIR` | 当前运行用户的 `~/Downloads/telegram` | 下载文件保存路径 |
 | `TDL_BOT_REQUIRED_MOUNT` | 空（不检查） | 要求挂载的磁盘路径；移动硬盘模式下建议设为 `/mnt/media` |
 | `TDL_BOT_API_PROXY` | `http://127.0.0.1:2080` | Telegram Bot API 使用的 HTTP 代理 |
 | `TDL_PROXY` | `socks5://127.0.0.1:2080` | 传给 `tdl` 下载进程的代理 |
@@ -150,7 +150,8 @@ systemctl --user restart tdl-bot
 - 如 Throne 没有运行，Bot API 会连接失败并持续重试；下载任务可能失败，检查日志并重新提交链接。
 - 队列数据库存于 Debian 系统盘，而媒体文件存于你设置的目标盘。
 - 系统重装、Python 和 tdl 重大版本升级前先备份配置与任务数据库。
-\n## 安全注意事项
+
+## 安全注意事项
 
 - **本仓库不包含真实 Token、个人 User ID、Telegram 账号会话或媒体文件。** 仓库当前是公开的，提交前应检查 `git status` 和 `git diff --cached`。
 - `.gitignore` 是防误提交保护，不是凭据加密措施；若 Token 意外公开，应立刻去 BotFather 重新生成。
