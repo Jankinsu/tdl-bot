@@ -1,0 +1,34 @@
+# Python cache and local development
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.idea/
+.vscode/
+.DS_Store
+
+# Telegram credentials and session data
+token
+allowed_user_id
+settings.env
+.env
+*.env
+!*.env.example
+.tdl/
+*.session
+*.session-journal
+*.tdl
+
+# Runtime databases, logs, and downloaded media
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+state/
+logs/
+downloads/
+media/
+Downloads/
