@@ -1,0 +1,14 @@
+[Unit]
+Description=Personal Telegram tdl download bot
+
+[Service]
+Type=simple
+WorkingDirectory=%h/apps/tdl-bot
+EnvironmentFile=%h/.config/tdl-bot/settings.env
+ExecStart=/usr/bin/python3 %h/apps/tdl-bot/bot.py
+Restart=always
+RestartSec=5
+TimeoutStopSec=45
+
+[Install]
+WantedBy=default.target
