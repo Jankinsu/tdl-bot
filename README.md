@@ -81,6 +81,8 @@ Bot Token 与允许使用的用户 ID 分别存放在 `~/.config/tdl-bot/token` 
 
 ## 部署（在 Debian 上操作）
 
+> 📚 **部署原理与命令复盘：** [从 Python 脚本到 systemd 用户服务：tdl-bot 项目复盘](docs/systemd-service-guide.md) —— 结合本项目源码，解释进程、Unit 文件、`install`、`daemon-reload`、`enable --now`、`enable-linger`、日志及目录设计。
+
 要求：Linux / Debian 13、Python 3.9+、已安装并在普通用户下登录成功的 `tdl`，以及可访问 Telegram Bot API 的网络代理。以**同一个普通用户**运行 Bot 与 `tdl login`。事先创建 `~/.config/tdl-bot/token`（完整 Bot Token）和 `~/.config/tdl-bot/allowed_user_id`（你个人的 Telegram User ID，非 Bot ID），并设置 `chmod 600`；**不要提交或公开这两个文件**。
 
 在启动新服务前，先用 `Ctrl+C` 停止旧版正在前台运行的 `bot.py`，并尽量等旧下载任务结束，以免两个程序争夺 Telegram Long Polling 更新。
