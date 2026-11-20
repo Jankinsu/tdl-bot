@@ -148,7 +148,7 @@ WantedBy=default.target
 | `TimeoutStopSec=45` | 停止流程最多等待约 45 秒，之后 systemd 可能强制结束进程 |
 | `WantedBy=default.target` | 使用户管理器启动其默认目标时也启动该服务（需 `enable`） |
 
-`%h` 是 systemd 的用户主目录占位符；对 `xiaomo` 用户而言就是 `/home/xiaomo`。
+`%h` 是 systemd 的用户主目录占位符；对 `example-user` 用户而言就是 `/home/example-user`。
 
 其中最重要的是：
 
@@ -282,7 +282,7 @@ systemctl --user status tdl-bot --no-pager
 ## 6. 为什么要把代码、配置、状态和媒体分开？
 
 ```text
-/home/xiaomo/
+/home/example-user/
 ├── apps/tdl-bot/
 │   ├── bot.py                  # 代码（Git 管理）
 │   └── tdl-bot.service         # Unit 模板
