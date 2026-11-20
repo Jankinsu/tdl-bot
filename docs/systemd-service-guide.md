@@ -246,7 +246,7 @@ sudo loginctl enable-linger "$USER"
 
 因此，`enable` + `enable-linger` 才完整满足私人服务器的需求：**不必保持 SSH 登录，开机后仍能运行机器人**。
 
-`"$USER"` 是 Shell 变量；在 `xiaomo` 的会话里会展开为 `xiaomo`。本命令中的 `sudo` 是为修改系统级 linger 设置，并不意味着机器人要以 root 身份运行。
+`"$USER"` 是 Shell 变量；在 `example-user` 的会话里会展开为 `example-user`。本命令中的 `sudo` 是为修改系统级 linger 设置，并不意味着机器人要以 root 身份运行。
 
 ### 4.6 检查部署结果
 
