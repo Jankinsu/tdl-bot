@@ -159,3 +159,86 @@ systemctl --user restart tdl-bot
 - `.gitignore` 是防误提交保护，不是凭据加密措施；若 Token 意外公开，应立刻去 BotFather 重新生成。
 - `TDL_BOT_REQUIRED_MOUNT` 留空时不启用挂载检查；迁移到移动硬盘后必须设置该值。
 - 首次运行前保证 Throne 已启动并监听配置的代理端口。
+
+## 一键安装、升级与卸载
+
+本项目和 [tg-auto](https://github.com/Jankinsu/tg-auto) 采用一致的目录规范：GitHub 管理代码，Debian 本地 `~/.config/tdl-bot/` 管理凭据与配置，`~/.local/state/tdl-bot/` 管理 SQLite 队列和下载日志，用户级 systemd 管理常驻服务。
+
+### 一键安装（保留已有数据）
+
+先以运行 `tdl login` 的**同一个普通 Linux 用户**登录 Debian（不要用 root / `sudo bash`）。确认 `tdl` 已安装且登录成功，Throne 代理正常运行。已有仓库用 `git pull` 更新；新机器先按前文克隆至 `~/apps/tdl-bot`。
+
+```bash
+cd ~/apps/tdl-bot
+git pull
+bash scripts/install.sh
+```
+
+脚本检查 Python、tdl 可执行路径，建立本地配置/状态目录（700），仅在缺少配置时复制 `settings.env.example`，仅在缺少凭据时交互输入 BotFather Token 和允许访问的个人 Telegram User ID，设置文件 600 权限，检查 `bot.py` 语法，并安装 `~/.config/systemd/user/tdl-bot.service`。
+
+**重要**：默认只安装/更新 unit，**不启动或重启服务**，避免中断正在下载的任务。现有 `settings.env`、Token、User ID、`jobs.sqlite3`、offset、下载日志、tdl 登录状态及媒体文件均不覆盖。原 unit 与仓库模板不同时备份为 `tdl-bot.service.backup.*`。安装脚本不创建新的 tdl 会话，不自动挂载硬盘。
+
+首次确认 `settings.env` 的媒体目录/挂载路径/代理后，手动启动：
+
+```bash
+systemctl --user enable --now tdl-bot.service
+systemctl --user status tdl-bot.service --no-pager
+```
+
+也可以明确选择安装后启动：
+
+```bash
+bash scripts/install.sh --enable-service
+```
+
+如果升级代码后需要重启**已经在运行**的服务：
+
+```bash
+bash scripts/install.sh --restart
+```
+
+重启可能中断当前下载；下载队列会持久化，但被中断任务可能重新执行。**代码更新本身不等于服务自动重启**。
+
+`loginctl show-user "$USER" -p Linger` 检查用户级服务是否能在退出登录后继续运行。如果需要且显示 `Linger=no`，执行 `sudo loginctl enable-linger "$USER"`。这项设置属于 Linux 用户，卸载项目不会关闭它。
+
+### 一键卸载（默认保留所有数据）
+
+```bash
+cd ~/apps/tdl-bot
+bash scripts/uninstall.sh
+```
+
+默认停止并禁用 `tdl-bot.service`，移除用户级 unit 并重新加载 systemd。**保留**仓库代码、本机 `token`/`allowed_user_id`/`settings.env`、SQLite 队列与日志、tdl 登录会话、媒体文件和此前 unit 备份，方便之后重新安装。
+
+### 彻底卸载（需显式确认）
+
+```bash
+cd ~/apps/tdl-bot
+bash scripts/uninstall.sh --purge
+```
+
+会要求输入 `DELETE tdl-bot`，确认后删除以下**仅属于 tdl-bot** 的目录和文件：
+
+```text
+~/apps/tdl-bot/                           # 仓库源码
+~/.config/tdl-bot/                        # Bot Token、白名单 ID、settings.env
+~/.local/state/tdl-bot/                   # jobs.sqlite3、offset、downloads.log
+~/.config/systemd/user/tdl-bot.service   # 服务 unit
+~/.config/systemd/user/tdl-bot.service.backup.*  # 安装脚本生成的 unit 备份
+```
+
+**不会删除**：`tdl` 可执行文件、`tdl login` 的个人 Telegram 会话、`/mnt/media` 硬盘内容、已下载媒体、`tdl-bot` 之外的服务（包括 `tg-auto`、Throne、青龙）、Python、系统软件包、GitHub 远程仓库、linger 设置和 systemd journal 历史日志。彻底卸载会**永久清除 SQLite 中的待下载任务和任务历史**，请先处理/备份队列。自动卸载不能让已泄露的 Bot Token 失效：如要撤销或轮换 Token，请通过 BotFather 操作。
+
+无交互终端的彻底卸载只能显式执行 `bash scripts/uninstall.sh --purge --yes`，请谨慎使用。
+
+### 手动核查与更新
+
+```bash
+cd ~/apps/tdl-bot
+git pull
+bash scripts/install.sh
+systemctl --user status tdl-bot.service --no-pager
+journalctl --user -u tdl-bot.service -n 50 --no-pager
+```
+
+不要把 `~/.config/tdl-bot/` 或 `~/.local/state/tdl-bot/` 复制回 GitHub 仓库。公开仓库只能提交程序、非敏感模板和文档；`.gitignore` 不能消除已经进入 Git 历史的秘密。泄露的 Token 必须立即轮换。
